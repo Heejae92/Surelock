@@ -56,7 +56,10 @@ test('buildCase is deterministic for the same seed and different on reopen', () 
   const b = buildCase(full, 123, 0);
   assert.deepEqual(a, b);
   const r = buildCase(full, 123, 1);
-  assert.notDeepEqual(a.cards, r.cards);
+  const strip = (c) => c.cards.map(({ exhibit, ...rest }) => rest);
+  assert.notDeepEqual(strip(a), strip(r));
+  const ruleSet = (c) => c.cards.map((k) => k.ruleId).sort().join();
+  assert.ok(Array.from({ length: 50 }, (_, i) => i).some((i) => ruleSet(buildCase(full, i, 0)) !== ruleSet(buildCase(full, i, 1))));
   assert.deepEqual(r.cards.map((k) => k.exhibit), [6, 7, 8, 9, 10]);
   assert.equal(r.reopenCount, 1);
 });
