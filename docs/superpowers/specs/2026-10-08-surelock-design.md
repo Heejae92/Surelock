@@ -208,11 +208,13 @@ Formatting helpers: `{time}` → `11:48 PM`; `{weekday}` → `Sunday`; `{share}`
 | `--ink` | `#1E1A16` | primary text |
 | `--ink-2` | `#6B6259` | labels, secondary text (4.6:1 on paper) |
 | `--string` | `#C62F2A` | strings |
-| `--stamp` | `#B4261D` | stamp ink, error cards |
+| `--stamp` | `#7F1711` | stamp ink, error cards (3.3:1 on cork, the large-text AA floor) |
 | `--brass` | `#C9A227` / edge `#8A6D14` | pins |
 | `--certain` | `#1B8A5A` | scan line, badge accents |
 | `--certain-bg` | `#E6F4EC` | badge background |
 | `--certain-ink` | `#14603F` | badge text (AA on badge background) |
+| `--focus` | `#1E1A16` | focus rings (visible on cork and paper) |
+| `--paper-hover`, `--ink-hover` | `#FFFFFF`, `#000000` | button hover states |
 | `--font-mono` | `"Courier Prime", "Courier New", monospace` | evidence, case log, labels, stamp, wordmark |
 | `--font-sans` | `"Inter", system-ui, sans-serif` | deductions, badge, buttons, footer |
 | `--tilt-photo` | `-3deg` | pinned photo |
@@ -220,7 +222,7 @@ Formatting helpers: `{time}` → `11:48 PM`; `{weekday}` → `Sunday`; `{share}`
 | `--dur-pin` / `--dur-scan` / `--dur-card` / `--dur-string` / `--dur-stamp` | `300ms / 1000ms / 400ms / 500ms / 250ms` | motion |
 | `--stagger-card` | `450ms` | between cards |
 
-Type scale: wordmark 28/700 mono uppercase letter-spaced; labels 11 mono uppercase 0.12em; evidence 14 mono; deduction 17/600 sans (19 on desktop); why 13 sans; stamp 30/700 mono uppercase; buttons 14/600 sans.
+Text that sits directly on cork (wordmark, tagline, "Cold cases", privacy line, reopened line) is set in `--ink`, not `--paper`: paper on cork is 2.8:1 and fails AA. Type scale: wordmark 28/700 mono uppercase letter-spaced; labels 11 mono uppercase 0.12em; evidence 14 mono; deduction 17/600 sans (19 on desktop); why 13 sans; stamp 30/700 mono uppercase; buttons 14/600 sans.
 
 Fonts load from Google Fonts (Courier Prime 400/700, Inter 400/600) with `display=swap`.
 

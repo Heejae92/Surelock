@@ -6,12 +6,15 @@
   --ink: #1E1A16;
   --ink-2: #6B6259;
   --string: #C62F2A;
-  --stamp: #B4261D;
+  --stamp: #7F1711;
   --brass: #C9A227;
   --brass-edge: #8A6D14;
   --certain: #1B8A5A;
   --certain-bg: #E6F4EC;
   --certain-ink: #14603F;
+  --paper-hover: #FFFFFF;
+  --ink-hover: #000000;
+  --focus: #1E1A16;
   --font-mono: "Courier Prime", "Courier New", monospace;
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --tilt-photo: -3deg;
@@ -46,9 +49,9 @@ body {
   font-size: 28px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--paper);
+  color: var(--ink);
 }
-.tagline { margin: 4px 0 0; font-size: 15px; color: var(--paper); }
+.tagline { margin: 4px 0 0; font-size: 15px; color: var(--ink); }
 
 /* Board layout */
 .board {
@@ -121,7 +124,7 @@ body {
   pointer-events: none;
 }
 .dropzone.is-over::before { border-color: var(--certain); }
-.dropzone:focus-within { outline: 3px solid var(--certain); outline-offset: 4px; }
+.dropzone:focus-within { outline: 3px solid var(--focus); outline-offset: 4px; }
 .dropzone-title {
   font-family: var(--font-mono);
   font-weight: 700;
@@ -197,11 +200,11 @@ button {
   color: var(--ink);
   cursor: pointer;
 }
-button:hover { background: #fff; }
-button:focus-visible { outline: 3px solid var(--certain); outline-offset: 2px; }
+button:hover { background: var(--paper-hover); }
+button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 #reopen { background: var(--ink); color: var(--paper); }
-#reopen:hover { background: #000; }
-.reopened { margin: 8px 0 0; font-family: var(--font-mono); font-size: 13px; color: var(--paper); }
+#reopen:hover { background: var(--ink-hover); }
+.reopened { margin: 8px 0 0; font-family: var(--font-mono); font-size: 13px; color: var(--ink); }
 
 /* Samples */
 .samples { margin-top: 28px; }
@@ -212,7 +215,7 @@ button:focus-visible { outline: 3px solid var(--certain); outline-offset: 2px; }
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--paper);
+  color: var(--ink);
 }
 .samples-strip { display: flex; gap: 14px; flex-wrap: wrap; }
 .sample {
@@ -223,7 +226,7 @@ button:focus-visible { outline: 3px solid var(--certain); outline-offset: 2px; }
   transform: rotate(var(--tilt, 0deg));
 }
 .sample img { display: block; width: 84px; height: 84px; object-fit: cover; }
-.privacy { margin: 20px 0 0; font-size: 13px; color: var(--paper); }
+.privacy { margin: 20px 0 0; font-size: 13px; color: var(--ink); }
 
 /* Exhibits */
 .exhibits {
