@@ -64,6 +64,7 @@ const isNum = (x) => typeof x === 'number' && Number.isFinite(x);
 const colorEvidence = (s) => `${fmtPct(s.dominant.share)}% of the frame is ${s.dominant.name}.`;
 const isLunch = (hour) => hour === 12 || hour === 13;
 const photosBefore = (s) => Math.max(parsePhotoNumber(s.fileName) - 1, 0);
+const withArticle = (name) => `${/^[aeiou]/i.test(name) ? 'an' : 'a'} ${name}`;
 const deviceName = (s) => {
   const make = (s.make || '').trim();
   const model = (s.model || '').trim();
@@ -168,7 +169,7 @@ export const RULES = [
   {
     id: 'android', category: 'device',
     when: (s) => s.deviceKind === 'android',
-    evidence: (s) => `Shot on a ${deviceName(s)}.`,
+    evidence: (s) => `Shot on ${withArticle(deviceName(s))}.`,
     deductions: [
       'You have explained to someone, at length, why this phone is better. They did not ask.',
       'The camera has nine modes. You have used one.',
@@ -179,7 +180,7 @@ export const RULES = [
   {
     id: 'real-camera', category: 'device',
     when: (s) => s.deviceKind === 'camera',
-    evidence: (s) => `Shot on a ${deviceName(s)}.`,
+    evidence: (s) => `Shot on ${withArticle(deviceName(s))}.`,
     deductions: [
       'You bought a camera to become a different person. The camera is four years old. So is the plan.',
       'There are 1,100 photos on the memory card. Twelve have been looked at.',

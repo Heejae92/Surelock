@@ -52,8 +52,12 @@ test('every rule is complete', () => {
     assert.equal(typeof r.evidence, 'function', r.id);
     assert.equal(r.deductions.length, 3, r.id);
     assert.equal(r.whys.length, 2, r.id);
-    for (const line of [...r.deductions, ...r.whys]) {
-      if (typeof line === 'string') assert.doesNotMatch(line, /\b(probably|might|seems|maybe|perhaps)\b/i, r.id);
+    for (const s of [base, { ...base, reopenCount: 1 }]) {
+      for (const line of [r.evidence(s), ...r.deductions, ...r.whys].map((v) => (typeof v === 'function' ? v(s) : v))) {
+        assert.equal(typeof line, 'string', r.id);
+        assert.doesNotMatch(line, /undefined|null|NaN|\[object/, `${r.id}: ${line}`);
+        assert.doesNotMatch(line, /\b(probably|might|seems|maybe|perhaps)\b/i, `${r.id}: ${line}`);
+      }
     }
   }
 });
@@ -95,7 +99,7 @@ test('second-opinion only fires after a reopen', () => {
 test('device evidence never prints null and never doubles the brand', () => {
   const cam = (make, model) => ({ ...base, make, model, deviceKind: 'camera' });
   assert.equal(byId('real-camera').evidence(cam('Canon', null)), 'Shot on a Canon.');
-  assert.equal(byId('real-camera').evidence(cam(null, 'ILCE-7M4')), 'Shot on a ILCE-7M4.');
+  assert.equal(byId('real-camera').evidence(cam(null, 'ILCE-7M4')), 'Shot on an ILCE-7M4.');
   assert.equal(byId('real-camera').evidence(cam('NIKON CORPORATION', 'NIKON D850')), 'Shot on a NIKON D850.');
   assert.equal(byId('real-camera').evidence(cam('Canon', 'Canon EOS 80D')), 'Shot on a Canon EOS 80D.');
   assert.equal(byId('real-camera').evidence(cam('Sony', 'ILCE-7M4')), 'Shot on a Sony ILCE-7M4.');
@@ -124,4 +128,14 @@ test('every hour of every weekday has at least one time rule, and lunch never ov
       assert.ok(!(firing.includes('lunch') && firing.includes('work-hours')), `${day} ${hour}`);
     }
   }
+});
+
+test('when clauses return strict booleans and iphone evidence falls back to the device name', () => {
+  for (const r of RULES) {
+    for (const s of [base, { ...base, hasExif: undefined, hasGPS: undefined }, { ...base, fileName: null, bytes: 0 }]) {
+      assert.equal(typeof r.when(s), 'boolean', r.id);
+    }
+  }
+  assert.equal(byId('no-gps').when({ ...base, hasExif: undefined }), false);
+  assert.equal(byId('iphone').evidence({ ...base, model: null, make: 'Apple iPhone', deviceKind: 'iphone' }), 'Shot on Apple iPhone.');
 });
