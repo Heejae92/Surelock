@@ -1,4 +1,5 @@
 // Pure color helpers. No DOM. Used by signals.js in the browser and by tests in Node.
+// analyzePixels reports `saturation` as mean chroma (0–1), not mean HSL saturation.
 
 export function rgbToHsl(r, g, b) {
   r /= 255; g /= 255; b /= 255;
@@ -20,10 +21,16 @@ export const COLOR_NAMES = [
   'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink',
 ];
 
+// Chroma is max − min of the normalized channels (0 for neutrals, 1 for pure hues).
+// HSL saturation is not used for neutral detection or averaging because it explodes near white.
+export function chromaOf({ s, l }) {
+  return (1 - Math.abs(2 * l - 1)) * s;
+}
+
 export function nameColor({ h, s, l }) {
-  if (l >= 0.93 && s < 0.3) return 'white';
+  const chroma = chromaOf({ s, l });
   if (l <= 0.12) return 'black';
-  if (s < 0.12) return l >= 0.85 ? 'white' : 'gray';
+  if (chroma < 0.1) return l >= 0.85 ? 'white' : 'gray';
   if (h >= 15 && h < 60 && s < 0.5) return l >= 0.55 ? 'beige' : 'brown';
   if (h < 15 || h >= 340) return l >= 0.7 ? 'pink' : 'red';
   if (h < 45) return l < 0.35 ? 'brown' : 'orange';
@@ -38,13 +45,13 @@ export function analyzePixels(data) {
   const counts = Object.fromEntries(COLOR_NAMES.map((name) => [name, 0]));
   let n = 0;
   let sumL = 0;
-  let sumS = 0;
+  let sumChroma = 0;
   for (let i = 0; i < data.length; i += 4) {
     if (data[i + 3] < 128) continue;
     const hsl = rgbToHsl(data[i], data[i + 1], data[i + 2]);
     counts[nameColor(hsl)] += 1;
     sumL += hsl.l;
-    sumS += hsl.s;
+    sumChroma += chromaOf(hsl);
     n += 1;
   }
   if (n === 0) return { dominant: { name: 'gray', share: 1 }, brightness: 0.5, saturation: 0 };
@@ -53,6 +60,6 @@ export function analyzePixels(data) {
   return {
     dominant: { name: best, share: counts[best] / n },
     brightness: sumL / n,
-    saturation: sumS / n,
+    saturation: sumChroma / n,
   };
 }

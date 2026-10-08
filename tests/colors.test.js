@@ -12,7 +12,7 @@ test('rgbToHsl converts primaries and grays', () => {
 });
 
 test('nameColor buckets hue, saturation, and lightness into 12 names', () => {
-  assert.equal(COLOR_NAMES.length, 12);
+  assert.deepEqual(COLOR_NAMES, ['white', 'beige', 'brown', 'gray', 'black', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink']);
   const cases = [
     [{ h: 0, s: 1, l: 0.5 }, 'red'],
     [{ h: 350, s: 0.8, l: 0.8 }, 'pink'],
@@ -38,11 +38,23 @@ test('analyzePixels finds the dominant bucket and averages lightness and saturat
   assert.equal(out.dominant.name, 'beige');
   assert.equal(out.dominant.share, 0.75);
   assert.ok(out.brightness > 0.5 && out.brightness < 0.7, `brightness ${out.brightness}`);
-  assert.ok(out.saturation > 0.2 && out.saturation < 0.4, `saturation ${out.saturation}`);
+  assert.ok(out.saturation > 0.1 && out.saturation < 0.15, `saturation ${out.saturation}`);
 });
 
 test('analyzePixels ignores transparent pixels', () => {
   const data = new Uint8ClampedArray([0, 0, 255, 255, 255, 0, 0, 0]);
   assert.equal(analyzePixels(data).dominant.name, 'blue');
   assert.equal(analyzePixels(data).dominant.share, 1);
+});
+
+test('near-white pixels are white, not hue-named', () => {
+  for (const rgb of [[255, 250, 240], [248, 248, 255], [253, 254, 255], [230, 230, 236], [245, 247, 250]]) {
+    assert.equal(nameColor(rgbToHsl(...rgb)), 'white', rgb.join(','));
+  }
+  const px = (r, g, b, n) => Array.from({ length: n }, () => [r, g, b, 255]).flat();
+  const wall = new Uint8ClampedArray([...px(250, 252, 254, 10), ...px(254, 252, 250, 10), ...px(252, 250, 254, 10)]);
+  const out = analyzePixels(wall);
+  assert.equal(out.dominant.name, 'white');
+  assert.equal(out.dominant.share, 1);
+  assert.ok(out.saturation < 0.02, `saturation ${out.saturation}`);
 });
