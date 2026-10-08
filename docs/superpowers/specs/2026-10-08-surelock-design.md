@@ -175,7 +175,7 @@ Format: **id** (category) — condition · *Evidence* · deductions (3) · whys 
 **file**
 
 26. **numbered-name** — name matches `/^(IMG|DSC|PXL|DCIM|P)[_-]?\d{3,}/i` · *Filename: {fileName}.* · There are {n−1} photos before this one. You will revisit none of them. / Photo number {n}. The first 100 were of a cat. / {n} photos deep and this is the one you chose. Interesting. · Arithmetic. / Elementary.
-27. **custom-name** — has a name, not numbered, not `Screenshot…` · *Filename: {fileName}.* · You renamed this file. Nobody renames files. You are hiding something, probably from yourself. / This file has a name. It also has a folder. The folder has a folder. / You named it "final". There is a "final2". · Names are motives. / Because it is obvious.
+27. **custom-name** — has a name, not numbered, not `Screenshot…` · *Filename: {fileName}.* · You renamed this file. Nobody renames files. You are hiding something from yourself. / This file has a name. It also has a folder. The folder has a folder. / You named it "final". There is a "final2". · Names are motives. / Because it is obvious.
 28. **big-file** — `bytes > 3.5 MB` · *File size: {mb} MB.* · Your storage is full. You will buy more instead of deleting anything. / This single photo weighs more than your résumé. You have not updated either. / 4,000 of these and the phone "feels slow". Mystery solved. · Mass is memory. You keep all of it. / It always is.
 29. **tiny-file** — `bytes < 150 KB`, not screen-shaped · *File size: {kb} KB.* · Forwarded so many times it has lost its original meaning. So has the group chat. / Compressed to nothing. Like the promise that came with it. / It was sent through WhatsApp. Twice. · Small files travel far. / Elementary.
 
