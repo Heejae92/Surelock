@@ -129,17 +129,18 @@ Format: **id** (category) — condition · *Evidence* · deductions (3) · whys 
 **time** (requires `takenAt`)
 
 1. **late-night** — hour 22–3 · *Taken at {time}.* · You are avoiding a deadline. It is due tomorrow. / Nobody photographs anything at {time} on purpose. You were stalling. / You told someone you were asleep. This is the timestamp that says otherwise. · Nothing good is photographed after 10 PM. / The hour speaks for itself.
-2. **early-morning** — hour 5–7 · *Taken at {time}.* · You are a morning person for exactly four more days. / You woke up early to become a new person. The photo is the only thing that got done. / Somebody promised you a sunrise. This is what you got. · Dawn is a performance. / We have seen the pattern.
+2. **early-morning** — hour 4–8 · *Taken at {time}.* · You are a morning person for exactly four more days. / You woke up early to become a new person. The photo is the only thing that got done. / Somebody promised you a sunrise. This is what you got. · Dawn is a performance. / We have seen the pattern.
 3. **lunch** — hour 12–13 · *Taken at {time}.* · This was lunch. It was not enough. / You photographed it instead of eating it while it was warm. / You were at your desk. The desk is not a restaurant. · Lunch photos are confessions. / Elementary.
 4. **work-hours** — hour 9–17, Mon–Fri, not lunch · *Taken at {time} on a {weekday}.* · You were at work. This is not work. / Your calendar said "focus time". / Someone was presenting. You were doing this. · Office hours leave fingerprints. / Because it is obvious.
 5. **weekend** — Sat or Sun · *Taken on a {weekday}.* · You said you would rest this weekend. You are reading this instead. / This was the one plan you kept. / It was a {weekday}. You still checked your email. · Weekends leave fingerprints. / Because it is obvious.
 6. **years-ago** — `yearsAgo >= 3` · *Taken in {year}.* · You scrolled past 3,000 newer photos to find this one. We know why. / You were happier in {year}. The pixels agree. / Something from {year} is still unfinished. · Old photos do not get opened by accident. / Arithmetic.
+6a. **evening** — hour 18–21 · *Taken at {time}.* · This was "dinner". It was cereal. / Golden hour. You were indoors. / Everyone else was at the thing. You were here. · Evenings confess. / Elementary. (Together, rules 1–6a cover every hour; `lunch` and `work-hours` never overlap.)
 
 **device**
 
 7. **iphone** — `deviceKind === 'iphone'` · *Shot on {model}.* · You have been meaning to upgrade for 14 months. The phone knows. / Storage has been "almost full" for a year. This photo did not help. / This phone has seen things. It will not be the one to tell. · Metadata does not lie. Neither do we. / The model number was enough.
-8. **android** — `deviceKind === 'android'` · *Shot on a {make} {model}.* · You have explained to someone, at length, why this phone is better. They did not ask. / The camera has nine modes. You have used one. / You chose this phone for the battery. You charge it twice a day. · The make told us everything. / Elementary.
-9. **real-camera** — `deviceKind === 'camera'` · *Shot on a {make} {model}.* · You bought a camera to become a different person. The camera is four years old. So is the plan. / There are 1,100 photos on the memory card. Twelve have been looked at. / You own a lens you have used once. It was expensive. It is still "the good one". · Real cameras are commitments. Commitments leave traces. / Because it is obvious.
+8. **android** — `deviceKind === 'android'` · *Shot on a {device}.* ({device} is make + model with missing parts dropped and the brand not repeated, e.g. "NIKON CORPORATION" + "NIKON D850" → "NIKON D850") · You have explained to someone, at length, why this phone is better. They did not ask. / The camera has nine modes. You have used one. / You chose this phone for the battery. You charge it twice a day. · The make told us everything. / Elementary.
+9. **real-camera** — `deviceKind === 'camera'` · *Shot on a {device}.* · You bought a camera to become a different person. The camera is four years old. So is the plan. / There are 1,100 photos on the memory card. Twelve have been looked at. / You own a lens you have used once. It was expensive. It is still "the good one". · Real cameras are commitments. Commitments leave traces. / Because it is obvious.
 10. **no-camera** — `!hasExif && !screenShaped` · *No camera data in the file.* · This photo has been through at least four messaging apps. It has lost weight. / Someone sent you this. You saved it. You will never find it again. / The metadata was stripped. Something was being hidden. It was not very interesting. · Clean files are the dirtiest. / Absence is evidence.
 
 **location**
@@ -174,8 +175,8 @@ Format: **id** (category) — condition · *Evidence* · deductions (3) · whys 
 
 **file**
 
-26. **numbered-name** — name matches `/^(IMG|DSC|PXL|DCIM|P)[_-]?\d{3,}/i` · *Filename: {fileName}.* · There are {n−1} photos before this one. You will revisit none of them. / Photo number {n}. The first 100 were of a cat. / {n} photos deep and this is the one you chose. Interesting. · Arithmetic. / Elementary.
-27. **custom-name** — has a name, not numbered, not `Screenshot…` · *Filename: {fileName}.* · You renamed this file. Nobody renames files. You are hiding something from yourself. / This file has a name. It also has a folder. The folder has a folder. / You named it "final". There is a "final2". · Names are motives. / Because it is obvious.
+26. **numbered-name** — name has a camera prefix and a usable 3–7 digit sequence number, `/^(?:IMG|DSC|DCIM|P)[_-]?E?(\d{3,7})(?!\d)/i` (date-stamped names such as `PXL_20260310_…` or `IMG-20260310-WA0012` are camera-generated but carry no usable number, so they get neither file-name card; the "before" count is clamped at 0) · *Filename: {fileName}.* · There are {n−1} photos before this one. You will revisit none of them. / Photo number {n}. The first 100 were of a cat. / {n} photos deep and this is the one you chose. Interesting. · Arithmetic. / Elementary.
+27. **custom-name** — has a name, not camera-generated (`isCameraName`), not `Screenshot…`, not screen-shaped · *Filename: {fileName}.* · You renamed this file. Nobody renames files. You are hiding something from yourself. / This file has a name. It also has a folder. The folder has a folder. / You named it "final". There is a "final2". · Names are motives. / Because it is obvious.
 28. **big-file** — `bytes > 3.5 MB` · *File size: {mb} MB.* · Your storage is full. You will buy more instead of deleting anything. / This single photo weighs more than your résumé. You have not updated either. / 4,000 of these and the phone "feels slow". Mystery solved. · Mass is memory. You keep all of it. / It always is.
 29. **tiny-file** — `bytes < 150 KB`, not screen-shaped · *File size: {kb} KB.* · Forwarded so many times it has lost its original meaning. So has the group chat. / Compressed to nothing. Like the promise that came with it. / It was sent through WhatsApp. Twice. · Small files travel far. / Elementary.
 
@@ -189,7 +190,7 @@ Format: **id** (category) — condition · *Evidence* · deductions (3) · whys 
 
 Rule 31 is flagged `priority: true` so it is the first filler whenever a case has been reopened. Rules 32–33 exist so that a photo with few signals (a screenshot with no EXIF and a non-numbered name) still fills five cards.
 
-Formatting helpers: `{time}` → `11:48 PM`; `{weekday}` → `Sunday`; `{share}`/`{pct}` → integer percent; `{ratio}` → nearest of `3:4, 2:3, 9:16, 4:3, 3:2, 16:9`; `{pixelCount}` → thousands separators; `{mb}` one decimal; `{kb}` integer; `{n}` → the number parsed from the file name, with separators.
+Formatting helpers: `{time}` → `11:48 PM`; `{weekday}` → `Sunday`; `{share}`/`{pct}` → integer percent; `{ratio}` → nearest ratio from the image's own orientation set (portrait: `3:4, 2:3, 9:16, 4:5`; landscape: `4:3, 3:2, 16:9, 5:4`); `{pixelCount}` → thousands separators; `{mb}` one decimal; `{kb}` integer; `{n}` → the number parsed from the file name, with separators.
 
 ## 5. Visual system
 
@@ -313,7 +314,7 @@ Surelock/
 
 ## 10. Scope
 
-**v1 (ship):** sections 3–7 in full, the 33-rule library, three sample photos, tests, Vercel deploy, a short README.
+**v1 (ship):** sections 3–7 in full, the 34-rule library, three sample photos, tests, Vercel deploy, a short README.
 
 **Stretch, only if v1 is done and time remains:** an "Appraisal" card (`Contents of frame valued at $1,284.60`) and an "Authenticity" card (`REAL` / `AI-GENERATED`, flipping on reopen); faint cork grain.
 
