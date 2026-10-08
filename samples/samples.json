@@ -1,0 +1,20 @@
+[
+  {
+    "src": "samples/beige-room.svg",
+    "fileName": "IMG_8842.jpg",
+    "alt": "A beige room with a bright window",
+    "overrides": { "takenAt": "2026-03-10T23:48:00", "make": "Apple", "model": "iPhone 13 Pro", "hasGPS": false, "bytes": 4823000 }
+  },
+  {
+    "src": "samples/green-plant.svg",
+    "fileName": "DSC_0417.JPG",
+    "alt": "A plant in a pot against a green wall",
+    "overrides": { "takenAt": "2021-06-20T12:31:00", "make": "Canon", "model": "EOS R6", "hasGPS": true, "bytes": 9120000 }
+  },
+  {
+    "src": "samples/night-city.svg",
+    "fileName": "Screenshot 2026-10-08 at 2.14.33 AM.png",
+    "alt": "A dark city skyline at night, phone-screen shaped",
+    "overrides": { "bytes": 212000 }
+  }
+]
