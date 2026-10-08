@@ -18,6 +18,9 @@ test('classifyDevice reads make and model', () => {
   assert.equal(classifyDevice('Canon', 'Canon EOS R6'), 'camera');
   assert.equal(classifyDevice('SONY', 'ILCE-7M4'), 'camera');
   assert.equal(classifyDevice(null, null), null);
+  assert.equal(classifyDevice('Apple', null), 'iphone');
+  assert.equal(classifyDevice('realme', 'RMX3301'), 'android');
+  assert.equal(classifyDevice('LGE', 'LM-G900'), 'android');
 });
 
 test('deriveTime computes hour, weekday, and years ago', () => {
@@ -29,6 +32,7 @@ test('deriveTime computes hour, weekday, and years ago', () => {
   const empty = { takenAt: null, hour: null, weekday: null, yearsAgo: null };
   assert.deepEqual(deriveTime(null, now), empty);
   assert.deepEqual(deriveTime(new Date('nonsense'), now), empty);
+  assert.deepEqual(deriveTime(new Date(1899, 10, 30, 0, 0), now), empty);
 });
 
 test('orientationOf treats near-square as square', () => {

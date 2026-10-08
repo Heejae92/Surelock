@@ -82,8 +82,8 @@ Everything is read in the browser. No network request carries the photo.
 |---|---|---|
 | `fileName`, `bytes` | File object | sample manifest |
 | `width`, `height`, `aspect`, `orientation` (`portrait`/`landscape`/`square`) | decoded image | — |
-| `screenShaped` | aspect within 3% of a common screen ratio (9:16, 9:19.5, 9:20, 16:9, 16:10, 4:3, 3:4) **and** no camera EXIF | — |
-| `hasExif`, `takenAt`, `hour`, `weekday`, `yearsAgo` | EXIF `DateTimeOriginal` via exifr | `hasExif=false`, time fields `null` |
+| `screenShaped` | aspect within 3% of a common screen ratio (9:16, 16:9, 9:19.5, 19.5:9, 9:20, 20:9, 16:10, 10:16) **and** no camera EXIF; 3:4 and 4:3 are excluded on purpose so EXIF-stripped phone photos are not called screenshots | — |
+| `hasExif`, `takenAt`, `hour`, `weekday`, `yearsAgo` | EXIF `DateTimeOriginal` via exifr; dates before 1900 (blank EXIF dates revive as 1899) count as no date | `hasExif=false`, time fields `null` |
 | `make`, `model`, `deviceKind` (`iphone`/`android`/`camera`/`null`) | EXIF `Make`/`Model` | `null` |
 | `hasGPS` | EXIF GPS block present (coordinates are **not** read or displayed) | `false` |
 | `dominant.name`, `dominant.share` | pixels of a 64×64 downscale, bucketed by HSL into `white`, `beige`, `brown`, `gray`, `black`, `red`, `orange`, `yellow`, `green`, `blue`, `purple`, `pink` | — |
@@ -146,7 +146,7 @@ Format: **id** (category) — condition · *Evidence* · deductions (3) · whys 
 **location**
 
 11. **no-gps** — `hasExif && !hasGPS` · *No location data in the file.* · You have something to hide. We know what it is. / You turned off location for photos in 2019 and told everyone about it. / This was taken somewhere you are not supposed to be. Or your kitchen. · Innocent photos carry coordinates. / Elementary.
-12. **gps** — `hasGPS` · *Location data present. Not read. We do not need it.* · You went somewhere and wanted proof. / You will post this with the location tag. Two people will see it. One is your mother. / This place is a "hidden gem" in at least three reviews you wrote. · Coordinates are a cry for help. / We know the area.
+12. **gps** — `hasGPS` · *Location data present. Not kept. We do not need it.* · You went somewhere and wanted proof. / You will post this with the location tag. Two people will see it. One is your mother. / This place is a "hidden gem" in at least three reviews you wrote. · Coordinates are a cry for help. / We know the area.
 
 **color** (one fires, by `dominant.name`)
 
@@ -284,7 +284,7 @@ Surelock/
 - `buildCase(signals, seed, reopenCount): Case` (seeds the PRNG with `seed + reopenCount`) where `Case = { seed, reopenCount, cards: Card[] }` and `Card = { exhibit, ruleId, category, evidence, deduction, why }`.
 - `renderBoard(root, { photoURL, signals, case, reduceMotion })`, `renderReopen(root, case)`, `renderError(root, code)`, `resetBoard(root)`.
 
-**Dependency:** `exifr` lite UMD, pinned (`https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js`), loaded as a classic script before the module. Only `exifr.parse(file, { pick: ['DateTimeOriginal','Make','Model'], gps: true })` is used; GPS values are discarded after checking presence.
+**Dependency:** `exifr` lite UMD, pinned (`https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js`), loaded as a classic script before the module. Only `exifr.parse(file, { pick: ['DateTimeOriginal', 'Make', 'Model', 'GPSLatitude', 'GPSLongitude'] })` is used; the GPS values are discarded after checking presence and never stored.
 
 **Image handling:** decode via `createImageBitmap` where available, else `<img>` + object URL. Draw to a 64×64 canvas for analysis. Images over 4096px on a side are still only sampled at 64×64, so size is not a problem. Object URLs are revoked on "New photo".
 

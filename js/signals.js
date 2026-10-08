@@ -13,13 +13,14 @@ export function isScreenShaped(width, height, hasExif) {
 export function classifyDevice(make, model) {
   const text = `${make || ''} ${model || ''}`.trim().toLowerCase();
   if (!text) return null;
-  if (/iphone|ipad/.test(text)) return 'iphone';
-  if (/samsung|google|pixel|oneplus|xiaomi|huawei|oppo|vivo|motorola|\blg\b|nothing|xperia|android/.test(text)) return 'android';
+  if (/iphone|ipad|apple/.test(text)) return 'iphone';
+  if (/samsung|google|pixel|oneplus|xiaomi|huawei|oppo|vivo|motorola|\blg\b|lge|realme|honor|asus|nokia|nothing|xperia|android/.test(text)) return 'android';
   return 'camera';
 }
 
 export function deriveTime(takenAt, now = new Date()) {
-  if (!(takenAt instanceof Date) || Number.isNaN(takenAt.getTime())) {
+  if (!(takenAt instanceof Date) || Number.isNaN(takenAt.getTime()) || takenAt.getFullYear() < 1900) {
+    // Blank EXIF dates revive as 1899-11-30; treat anything before 1900 as no date.
     return { takenAt: null, hour: null, weekday: null, yearsAgo: null };
   }
   const yearsAgo = (now.getTime() - takenAt.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
@@ -115,6 +116,7 @@ export async function readSignals(file, now = new Date()) {
 
 export async function signalsForSample(entry, now = new Date()) {
   const response = await fetch(entry.src);
+  if (!response.ok) throw { code: 'undecodable' };
   const blob = await response.blob();
   const name = entry.fileName || entry.src.split('/').pop();
   const file = new File([blob], name, { type: blob.type || 'image/svg+xml' });

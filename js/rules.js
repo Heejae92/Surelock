@@ -214,7 +214,7 @@ export const RULES = [
   {
     id: 'gps', category: 'location',
     when: (s) => s.hasGPS === true,
-    evidence: () => 'Location data present. Not read. We do not need it.',
+    evidence: () => 'Location data present. Not kept. We do not need it.',
     deductions: [
       'You went somewhere and wanted proof.',
       'You will post this with the location tag. Two people will see it. One is your mother.',
