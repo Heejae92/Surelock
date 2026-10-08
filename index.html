@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Surelock</title>
+<meta name="description" content="Upload a photo. Get the whole story. 100%. A bad-on-purpose AI detective built for IXD 750.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js" defer></script>
+<script type="module" src="js/main.js"></script>
+</head>
+<body>
+<header class="masthead">
+  <h1 class="wordmark">Surelock</h1>
+  <p class="tagline">Upload a photo. Get the whole story. 100%.</p>
+</header>
+
+<main class="board" id="board">
+  <svg class="strings" id="strings" aria-hidden="true"></svg>
+
+  <section class="dossier" aria-label="Case file">
+    <div class="photo-slot">
+      <label class="dropzone" id="dropzone">
+        <span class="pin" aria-hidden="true"></span>
+        <span class="dropzone-title">Pin a photo</span>
+        <span class="dropzone-hint">Drop a photo here, or choose one</span>
+        <input type="file" id="file-input" accept="image/*">
+      </label>
+      <figure class="pinned" id="pinned" hidden>
+        <span class="pin" aria-hidden="true"></span>
+        <img id="photo" alt="">
+        <div class="scanline" aria-hidden="true"></div>
+      </figure>
+    </div>
+    <ol class="caselog" id="caselog" aria-live="polite" aria-label="Case log"></ol>
+    <div class="actions" id="actions" hidden>
+      <button type="button" id="reopen">Reopen the case</button>
+      <button type="button" id="new-photo">New photo</button>
+    </div>
+    <p class="reopened" id="reopened" hidden></p>
+    <div class="samples" id="samples">
+      <h2 class="samples-label">Cold cases</h2>
+      <div class="samples-strip" id="samples-strip"></div>
+    </div>
+    <p class="privacy">Your photo never leaves your browser. Nothing is uploaded, stored, or sent.</p>
+  </section>
+
+  <section class="exhibits" id="exhibits" aria-label="Exhibits"></section>
+
+  <div class="stamp" id="stamp" role="img" aria-label="Case closed, 100 percent" hidden>
+    <span aria-hidden="true">Case closed</span>
+    <strong aria-hidden="true">100%</strong>
+  </div>
+</main>
+
+<footer class="dossier-footer">
+  <p class="rule"><strong>Rule broken:</strong> an explanation must be faithful to how the answer was actually made. Real evidence stapled to an invented conclusion is not reasoning, and a 100% on every card is not confidence.</p>
+  <p>The evidence is real. The deductions are nonsense on purpose.</p>
+  <p class="credit">Bad on purpose · IXD 750 Product Innovation, Module 4 · Heejae Eo, 2026</p>
+</footer>
+</body>
+</html>
