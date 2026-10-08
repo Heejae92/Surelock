@@ -87,7 +87,7 @@ Everything is read in the browser. No network request carries the photo.
 | `make`, `model`, `deviceKind` (`iphone`/`android`/`camera`/`null`) | EXIF `Make`/`Model` | `null` |
 | `hasGPS` | EXIF GPS block present (coordinates are **not** read or displayed) | `false` |
 | `dominant.name`, `dominant.share` | pixels of a 64×64 downscale, bucketed by HSL into `white`, `beige`, `brown`, `gray`, `black`, `red`, `orange`, `yellow`, `green`, `blue`, `purple`, `pink` | — |
-| `brightness`, `saturation` (0–1) | mean of HSL lightness and saturation over the downscale | — |
+| `brightness`, `saturation` (0–1) | mean HSL lightness, and mean chroma (max − min of the channels; 0 for neutrals) over the downscale. HSL saturation is not used because it explodes near white | — |
 | `pixelCount` | `width × height` | — |
 | `analyzedAt` | the `Date` when the file was read (real wall-clock time) | — |
 
@@ -162,8 +162,8 @@ Format: **id** (category) — condition · *Evidence* · deductions (3) · whys 
 
 **tone**
 
-20. **desaturated** — `saturation < 0.18` · *Average saturation: {pct}%.* · Everything has felt a little gray since March. / You applied a black-and-white filter to make it "timeless". It is Tuesday. / The color drained out of this photo at the same time it drained out of the plan. · Color is a choice. So is its absence. / The pixels were unanimous.
-21. **oversaturated** — `saturation > 0.55` · *Average saturation: {pct}%.* · You moved the saturation slider all the way. Then a little more. / Reality was not enough. It rarely is. / This photo is louder than the moment was. · Volume is not evidence. / Elementary.
+20. **desaturated** — `saturation < 0.08` · *Average saturation: {pct}%.* · Everything has felt a little gray since March. / You applied a black-and-white filter to make it "timeless". It is Tuesday. / The color drained out of this photo at the same time it drained out of the plan. · Color is a choice. So is its absence. / The pixels were unanimous.
+21. **oversaturated** — `saturation > 0.45` · *Average saturation: {pct}%.* · You moved the saturation slider all the way. Then a little more. / Reality was not enough. It rarely is. / This photo is louder than the moment was. · Volume is not evidence. / Elementary.
 
 **shape**
 
