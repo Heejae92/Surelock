@@ -135,6 +135,7 @@ export function createBoard(root) {
       ui.photo.alt = alt || '';
       ui.pinned.hidden = false;
       ui.pinned.classList.add('is-dropping');
+      await ui.photo.decode().catch(() => {});
       await wait(ms('--dur-pin'));
       ui.pinned.classList.remove('is-dropping');
     },
@@ -170,7 +171,7 @@ export function createBoard(root) {
     async flipOutCards() {
       for (const card of ui.exhibits.querySelectorAll('.card')) card.classList.add('is-out');
       ui.strings.classList.add('is-out');
-      await wait(200);
+      await wait(ms('--dur-flip'));
       clearExhibits();
       ui.strings.classList.remove('is-out');
     },
@@ -195,7 +196,7 @@ export function createBoard(root) {
     showError(code) {
       const [headline, hint] = ERRORS[code] || ERRORS.undecodable;
       clearExhibits();
-      ui.caselog.replaceChildren(el('li', 'is-visible', headline));
+      ui.caselog.replaceChildren(el('li', 'is-visible', headline), el('li', 'is-visible', hint));
       const article = el('article', 'card card-error is-in');
       article.append(el('p', 'label', 'Verdict'), el('p', 'deduction', headline), el('p', 'hint', hint));
       ui.exhibits.appendChild(article);

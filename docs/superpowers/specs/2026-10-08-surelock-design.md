@@ -219,7 +219,7 @@ Formatting helpers: `{time}` → `11:48 PM`; `{weekday}` → `Sunday`; `{share}`
 | `--font-sans` | `"Inter", system-ui, sans-serif` | deductions, badge, buttons, footer |
 | `--tilt-photo` | `-3deg` | pinned photo |
 | `--tilt-card` | `±2deg` (seeded per card) | cards |
-| `--dur-pin` / `--dur-scan` / `--dur-card` / `--dur-string` / `--dur-stamp` | `300ms / 1000ms / 400ms / 500ms / 250ms` | motion |
+| `--dur-pin` / `--dur-scan` / `--dur-card` / `--dur-string` / `--dur-stamp` / `--dur-flip` | `300ms / 1000ms / 400ms / 500ms / 250ms / 200ms` | motion |
 | `--stagger-card` | `450ms` | between cards |
 
 Text that sits directly on cork (wordmark, tagline, "Cold cases", privacy line, reopened line) is set in `--ink`, not `--paper`: paper on cork is 2.8:1 and fails AA. Type scale: wordmark 28/700 mono uppercase letter-spaced; labels 11 mono uppercase 0.12em; evidence 14 mono; deduction 17/600 sans (19 on desktop); why 13 sans; stamp label 19/700 and value 30/700 mono uppercase (both large text, 3.3:1 on cork); buttons 14/600 sans.

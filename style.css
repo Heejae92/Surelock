@@ -23,6 +23,7 @@
   --dur-card: 400ms;
   --dur-string: 500ms;
   --dur-stamp: 250ms;
+  --dur-flip: 200ms;
   --stagger-card: 450ms;
   --stagger-log: 300ms;
 }
@@ -75,9 +76,8 @@ body {
   pointer-events: none;
   overflow: visible;
   z-index: 1;
-  transition: opacity 200ms ease-in;
 }
-.strings.is-out { opacity: 0; }
+.strings.is-out { opacity: 0; transition: opacity var(--dur-flip) ease-in; }
 .string {
   fill: none;
   stroke: var(--string);
@@ -254,7 +254,7 @@ button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
   from { opacity: 0; transform: translate(var(--dx, 0px), calc(var(--dy, 0px) - 16px)) rotate(var(--tilt, 0deg)); }
   to { opacity: 1; transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--tilt, 0deg)); }
 }
-.card.is-out { animation: card-out 200ms ease-in forwards; }
+.card.is-out { animation: card-out var(--dur-flip) ease-in forwards; }
 @keyframes card-out {
   from { opacity: 1; transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--tilt, 0deg)); }
   to { opacity: 0; transform: translate(var(--dx, 0px), calc(var(--dy, 0px) + 12px)) rotate(var(--tilt, 0deg)); }
