@@ -309,7 +309,7 @@ Surelock/
 
 ## 9. Deployment and submission
 
-- Vercel static deploy from `Surelock/` (`vercel --prod`), project name `surelock`. Public URL expected at `surelock.vercel.app` or the assigned domain.
+- Vercel static deploy from `Surelock/`, project `heejae92s-projects/surelock`, connected to the GitHub repo so every push to `main` deploys production. Public URL: https://surelock-detective.vercel.app (`surelock.vercel.app` belongs to another account; Vercel's deployment-URL protection means only the project domain is public).
 - GitHub repository `Heejae92/Surelock` holds the source; GitHub Pages is the fallback host if Vercel is unavailable.
 - Submission note: type **Bad on purpose**; the rule broken is in the page footer; the live link is the Vercel URL.
 
