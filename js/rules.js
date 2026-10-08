@@ -22,13 +22,15 @@ export function fmtPct(fraction) {
   return Math.round(fraction * 100);
 }
 
-const RATIOS = [[3, 4], [2, 3], [9, 16], [4, 3], [3, 2], [16, 9]];
+const LANDSCAPE_RATIOS = [[4, 3], [3, 2], [16, 9], [5, 4]];
+const PORTRAIT_RATIOS = [[3, 4], [2, 3], [9, 16], [4, 5]];
 
 export function fmtRatio(width, height) {
   const aspect = width / height;
-  let best = RATIOS[0];
+  const candidates = width >= height ? LANDSCAPE_RATIOS : PORTRAIT_RATIOS;
+  let best = candidates[0];
   let bestDiff = Infinity;
-  for (const [w, h] of RATIOS) {
+  for (const [w, h] of candidates) {
     const diff = Math.abs(aspect - w / h);
     if (diff < bestDiff) {
       bestDiff = diff;
@@ -46,13 +48,30 @@ export function fmtKB(bytes) {
   return Math.round(bytes / 1024);
 }
 
+const CAMERA_NAME = /^(?:IMG|DSC|PXL|DCIM|P)[_-]?E?\d/i;
+const SEQUENCE_NUMBER = /^(?:IMG|DSC|DCIM|P)[_-]?E?(\d{3,7})(?!\d)/i;
+
+export function isCameraName(fileName) {
+  return CAMERA_NAME.test(fileName || '');
+}
+
 export function parsePhotoNumber(fileName) {
-  const match = /^(?:IMG|DSC|PXL|DCIM|P)[_-]?(\d{3,})/i.exec(fileName || '');
+  const match = SEQUENCE_NUMBER.exec(fileName || '');
   return match ? parseInt(match[1], 10) : null;
 }
 
 const isNum = (x) => typeof x === 'number' && Number.isFinite(x);
 const colorEvidence = (s) => `${fmtPct(s.dominant.share)}% of the frame is ${s.dominant.name}.`;
+const isLunch = (hour) => hour === 12 || hour === 13;
+const photosBefore = (s) => Math.max(parsePhotoNumber(s.fileName) - 1, 0);
+const deviceName = (s) => {
+  const make = (s.make || '').trim();
+  const model = (s.model || '').trim();
+  if (!model) return make;
+  if (!make) return model;
+  const brand = make.split(/\s+/)[0].toLowerCase();
+  return model.toLowerCase().startsWith(brand) ? model : `${make} ${model}`;
+};
 
 export const RULES = [
   // ---- time ---------------------------------------------------------------
@@ -69,7 +88,7 @@ export const RULES = [
   },
   {
     id: 'early-morning', category: 'time',
-    when: (s) => isNum(s.hour) && s.hour >= 5 && s.hour < 8,
+    when: (s) => isNum(s.hour) && s.hour >= 4 && s.hour < 9,
     evidence: (s) => `Taken at ${fmtTime(s.takenAt)}.`,
     deductions: [
       'You are a morning person for exactly four more days.',
@@ -80,7 +99,7 @@ export const RULES = [
   },
   {
     id: 'lunch', category: 'time',
-    when: (s) => isNum(s.hour) && (s.hour === 12 || s.hour === 13),
+    when: (s) => isNum(s.hour) && isLunch(s.hour),
     evidence: (s) => `Taken at ${fmtTime(s.takenAt)}.`,
     deductions: [
       'This was lunch. It was not enough.',
@@ -92,7 +111,7 @@ export const RULES = [
   {
     id: 'work-hours', category: 'time',
     when: (s) => isNum(s.hour) && isNum(s.weekday) && s.hour >= 9 && s.hour < 18
-      && !(s.hour === 12 || s.hour === 13) && s.weekday >= 1 && s.weekday <= 5,
+      && !isLunch(s.hour) && s.weekday >= 1 && s.weekday <= 5,
     evidence: (s) => `Taken at ${fmtTime(s.takenAt)} on a ${fmtWeekday(s.takenAt)}.`,
     deductions: [
       'You were at work. This is not work.',
@@ -123,11 +142,22 @@ export const RULES = [
     ],
     whys: ['Old photos do not get opened by accident.', 'Arithmetic.'],
   },
+  {
+    id: 'evening', category: 'time',
+    when: (s) => isNum(s.hour) && s.hour >= 18 && s.hour < 22,
+    evidence: (s) => `Taken at ${fmtTime(s.takenAt)}.`,
+    deductions: [
+      'This was "dinner". It was cereal.',
+      'Golden hour. You were indoors.',
+      'Everyone else was at the thing. You were here.',
+    ],
+    whys: ['Evenings confess.', 'Elementary.'],
+  },
   // ---- device -------------------------------------------------------------
   {
     id: 'iphone', category: 'device',
     when: (s) => s.deviceKind === 'iphone',
-    evidence: (s) => `Shot on ${s.model}.`,
+    evidence: (s) => `Shot on ${s.model || deviceName(s)}.`,
     deductions: [
       'You have been meaning to upgrade for 14 months. The phone knows.',
       'Storage has been "almost full" for a year. This photo did not help.',
@@ -138,7 +168,7 @@ export const RULES = [
   {
     id: 'android', category: 'device',
     when: (s) => s.deviceKind === 'android',
-    evidence: (s) => `Shot on a ${s.make} ${s.model}.`,
+    evidence: (s) => `Shot on a ${deviceName(s)}.`,
     deductions: [
       'You have explained to someone, at length, why this phone is better. They did not ask.',
       'The camera has nine modes. You have used one.',
@@ -149,7 +179,7 @@ export const RULES = [
   {
     id: 'real-camera', category: 'device',
     when: (s) => s.deviceKind === 'camera',
-    evidence: (s) => `Shot on a ${s.make} ${s.model}.`,
+    evidence: (s) => `Shot on a ${deviceName(s)}.`,
     deductions: [
       'You bought a camera to become a different person. The camera is four years old. So is the plan.',
       'There are 1,100 photos on the memory card. Twelve have been looked at.',
@@ -171,7 +201,7 @@ export const RULES = [
   // ---- location -----------------------------------------------------------
   {
     id: 'no-gps', category: 'location',
-    when: (s) => s.hasExif && !s.hasGPS,
+    when: (s) => Boolean(s.hasExif) && !s.hasGPS,
     evidence: () => 'No location data in the file.',
     deductions: [
       'You have something to hide. We know what it is.',
@@ -344,7 +374,7 @@ export const RULES = [
     when: (s) => parsePhotoNumber(s.fileName) !== null,
     evidence: (s) => `Filename: ${s.fileName}.`,
     deductions: [
-      (s) => `There are ${fmtInt(parsePhotoNumber(s.fileName) - 1)} photos before this one. You will revisit none of them.`,
+      (s) => `There are ${fmtInt(photosBefore(s))} photos before this one. You will revisit none of them.`,
       (s) => `Photo number ${fmtInt(parsePhotoNumber(s.fileName))}. The first 100 were of a cat.`,
       (s) => `${fmtInt(parsePhotoNumber(s.fileName))} photos deep and this is the one you chose. Interesting.`,
     ],
@@ -352,7 +382,7 @@ export const RULES = [
   },
   {
     id: 'custom-name', category: 'file',
-    when: (s) => !!s.fileName && parsePhotoNumber(s.fileName) === null && !/^screen ?shot/i.test(s.fileName),
+    when: (s) => !!s.fileName && !isCameraName(s.fileName) && !/^screen ?shot/i.test(s.fileName) && !s.screenShaped,
     evidence: (s) => `Filename: ${s.fileName}.`,
     deductions: [
       'You renamed this file. Nobody renames files. You are hiding something from yourself.',
