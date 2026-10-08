@@ -31,7 +31,8 @@ export function nameColor({ h, s, l }) {
   const chroma = chromaOf({ s, l });
   if (l <= 0.12) return 'black';
   if (chroma < 0.1) return l >= 0.85 ? 'white' : 'gray';
-  if (h >= 15 && h < 60 && s < 0.5) return l >= 0.55 ? 'beige' : 'brown';
+  const warmHue = h >= 15 && h < 60;
+  if (warmHue && (s < 0.5 || (l >= 0.75 && chroma < 0.3))) return l >= 0.55 ? 'beige' : 'brown';
   if (h < 15 || h >= 340) return l >= 0.7 ? 'pink' : 'red';
   if (h < 45) return l < 0.35 ? 'brown' : 'orange';
   if (h < 70) return 'yellow';
