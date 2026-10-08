@@ -89,6 +89,7 @@ Everything is read in the browser. No network request carries the photo.
 | `dominant.name`, `dominant.share` | pixels of a 64×64 downscale, bucketed by HSL into `white`, `beige`, `brown`, `gray`, `black`, `red`, `orange`, `yellow`, `green`, `blue`, `purple`, `pink` | — |
 | `brightness`, `saturation` (0–1) | mean of HSL lightness and saturation over the downscale | — |
 | `pixelCount` | `width × height` | — |
+| `analyzedAt` | the `Date` when the file was read (real wall-clock time) | — |
 
 Sample photos may carry an `overrides` object in `samples/samples.json` (for example `takenAt`, `make`, `model`, `hasGPS`) merged over the computed signals, so the demo is deterministic even if a placeholder image has no EXIF.
 
@@ -113,6 +114,7 @@ Sample photos may carry an `overrides` object in `samples/samples.json` (for exa
 4. For each card, pick one deduction variant and one why variant with the PRNG.
 5. Seed for the first run: FNV-1a hash of `fileName|bytes|width|height|takenAt|model|dominant.name|round(brightness,2)`. Reopen: `seed + reopenCount`.
  6. Exhibit numbers continue across reopens: `exhibit = reopenCount × 5 + index + 1`.
+ 7. The object handed to `when`, `evidence`, and the variants is `{ ...signals, reopenCount }`. Among `always` fillers, a rule flagged `priority: true` is used before the shuffled rest.
 
 Within a category, `when` clauses are written to be mutually exclusive where it matters (for example `no-camera` excludes `screenShaped`, `portrait`/`landscape` exclude `screenShaped`).
 
@@ -181,6 +183,11 @@ Format: **id** (category) — condition · *Evidence* · deductions (3) · whys 
 
 30. **pixels** · *{pixelCount} pixels examined.* · At least one of them is lying. / Every one of them agreed. That never happens. / They were cross-referenced against everything. Everything matched. · We checked twice. / Because it is obvious.
 31. **second-opinion** — only when `reopenCount > 0` · *Case reopened {reopenCount} time(s).* · Same evidence. Different story. Both correct. / The conclusion changed. The certainty did not. That is how you know it is working. / A second opinion was requested. It is also final. · Consistency is for the unsure. / Elementary.
+
+32. **dimensions** · *{w}×{h} pixels.* · This photo is wider than your attention span. By three pixels. / These dimensions are standard. Nothing else here is. / The aspect ratio was chosen for you. So was most of your week. · Geometry. / Elementary.
+33. **analyzed-at** · *Analyzed at {now}.* (the real time of analysis) · You opened this at {now}. You have somewhere to be. / It is {now}. You said you would be done by now. / Analysis complete. You will think about it at 3 AM. · We watched. / Because it is obvious.
+
+Rule 31 is flagged `priority: true` so it is the first filler whenever a case has been reopened. Rules 32–33 exist so that a photo with few signals (a screenshot with no EXIF and a non-numbered name) still fills five cards.
 
 Formatting helpers: `{time}` → `11:48 PM`; `{weekday}` → `Sunday`; `{share}`/`{pct}` → integer percent; `{ratio}` → nearest of `3:4, 2:3, 9:16, 4:3, 3:2, 16:9`; `{pixelCount}` → thousands separators; `{mb}` one decimal; `{kb}` integer; `{n}` → the number parsed from the file name, with separators.
 
@@ -306,7 +313,7 @@ Surelock/
 
 ## 10. Scope
 
-**v1 (ship):** sections 3–7 in full, the 31-rule library, three sample photos, tests, Vercel deploy, a short README.
+**v1 (ship):** sections 3–7 in full, the 33-rule library, three sample photos, tests, Vercel deploy, a short README.
 
 **Stretch, only if v1 is done and time remains:** an "Appraisal" card (`Contents of frame valued at $1,284.60`) and an "Authenticity" card (`REAL` / `AI-GENERATED`, flipping on reopen); faint cork grain.
 
