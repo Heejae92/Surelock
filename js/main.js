@@ -4,6 +4,7 @@ const strip = document.getElementById('samples-strip');
 async function loadSamples() {
   try {
     const response = await fetch('samples/samples.json');
+    if (!response.ok) throw new Error('samples unavailable');
     const entries = await response.json();
     entries.forEach((entry, index) => {
       const button = document.createElement('button');
@@ -20,6 +21,7 @@ async function loadSamples() {
     });
   } catch {
     strip.replaceChildren();
+    document.getElementById('samples').hidden = true;
   }
 }
 

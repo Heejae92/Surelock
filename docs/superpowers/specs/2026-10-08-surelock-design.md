@@ -43,7 +43,7 @@ Surelock is a deliberately terrible AI "detective" that lives on a single static
 1. **Empty board.** Wordmark "SURELOCK" and the one-liner at the top. A corkboard fills the viewport. On it: an empty pinned-paper outline with a brass pin and the drop zone copy "Pin a photo" / "Drop a photo here, or choose one". Below it, a strip labeled "Cold cases" with three sample photos. Small print: "Your photo never leaves your browser."
 2. **Analyzing (about 1.3 s).** The photo drops onto the board with a pin and settles at a slight tilt. A scan line sweeps the photo. A typewriter "case log" prints four lines, one at a time: `Reading 2,073,600 pixels…` (real count), `Cross-referencing metadata…`, `Eliminating the impossible…`, `Certain.`
 3. **Board.** Red strings draw out from the photo and five cards appear one at a time. Each card: a label row (`Exhibit 01` and a green `100%` badge), `EVIDENCE` with the true observation, `DEDUCTION` with the invented conclusion, and a `Why?` disclosure that opens a one-line non-explanation. After the fifth card, the stamp "CASE CLOSED · 100%" slams on. Two buttons: **Reopen the case** and **New photo**.
-4. **Reopened.** Cards flip out, five different cards flip in from the same evidence. The stamp returns. The exhibit count continues (06–10, then 11–15...). A small line under the stamp: `Reopened 1 time. Still 100%.`
+4. **Reopened.** Cards flip out, five different cards flip in from the same evidence. The stamp returns. The exhibit count continues (06–10, then 11–15...). A small status line under the buttons: `Reopened 1 time. Still 100%.` (a `role="status"` element that stays in the DOM and is emptied rather than hidden, so screen readers announce it; the case log likewise stays rendered when empty).
 5. **Error, in character.** A short red card on the board, then a plain one-line hint underneath:
    - Not an image: `Not a photograph. Suspicious. 100%` / `Choose a JPG, PNG, or WebP.`
    - Image the browser cannot decode (for example HEIC on non-Safari): `Unreadable. Guilty. 100%` / `This format can't be opened here. Try a JPG or PNG.`
@@ -206,7 +206,7 @@ Formatting helpers: `{time}` → `11:48 PM`; `{weekday}` → `Sunday`; `{share}`
 | `--paper` | `#F7F2E8` | cards, photo mat, drop zone |
 | `--paper-edge` | `#E4DCCD` | hairline on paper |
 | `--ink` | `#1E1A16` | primary text |
-| `--ink-2` | `#6B6259` | labels, secondary text (4.6:1 on paper) |
+| `--ink-2` | `#6B6259` | labels, secondary text (5.4:1 on paper) |
 | `--string` | `#C62F2A` | strings |
 | `--stamp` | `#7F1711` | stamp ink, error cards (3.3:1 on cork, the large-text AA floor) |
 | `--brass` | `#C9A227` / edge `#8A6D14` | pins |
@@ -222,7 +222,7 @@ Formatting helpers: `{time}` → `11:48 PM`; `{weekday}` → `Sunday`; `{share}`
 | `--dur-pin` / `--dur-scan` / `--dur-card` / `--dur-string` / `--dur-stamp` | `300ms / 1000ms / 400ms / 500ms / 250ms` | motion |
 | `--stagger-card` | `450ms` | between cards |
 
-Text that sits directly on cork (wordmark, tagline, "Cold cases", privacy line, reopened line) is set in `--ink`, not `--paper`: paper on cork is 2.8:1 and fails AA. Type scale: wordmark 28/700 mono uppercase letter-spaced; labels 11 mono uppercase 0.12em; evidence 14 mono; deduction 17/600 sans (19 on desktop); why 13 sans; stamp 30/700 mono uppercase; buttons 14/600 sans.
+Text that sits directly on cork (wordmark, tagline, "Cold cases", privacy line, reopened line) is set in `--ink`, not `--paper`: paper on cork is 2.8:1 and fails AA. Type scale: wordmark 28/700 mono uppercase letter-spaced; labels 11 mono uppercase 0.12em; evidence 14 mono; deduction 17/600 sans (19 on desktop); why 13 sans; stamp label 19/700 and value 30/700 mono uppercase (both large text, 3.3:1 on cork); buttons 14/600 sans.
 
 Fonts load from Google Fonts (Courier Prime 400/700, Inter 400/600) with `display=swap`.
 
@@ -235,14 +235,13 @@ Fonts load from Google Fonts (Courier Prime 400/700, Inter 400/600) with `displa
 - **Drop zone.** A paper rectangle with a dashed `--ink-2` inner border, a `<label>` wrapping `<input type="file" accept="image/*">`. Keyboard focusable. Accepts drag-and-drop on the whole board.
 - **Sample strip.** Three thumbnails labeled "Cold cases". Buttons, not links.
 - **Case log.** A paper strip under the photo, mono, lines appear one at a time.
-- **Footer.** Paper band at the bottom: rule, honesty line, credit, privacy line.
+- **Footer.** Paper band at the bottom: rule, honesty line, credit. (The privacy line sits on the board under the sample strip.)
 
 ### 5.3 Layout
 
-- Board max width 1120px, centered, 24px gutters, min height 100vh.
+- Board max width 1120px, centered, 24px gutters, min height 70vh. The footer keeps the same 24px gutters.
 - Desktop (≥ 900px): two columns. Left 380px: photo, case log, buttons. Right: cards in a 2-column grid with seeded small offsets (±12px) so they look hand-placed.
-- Tablet (720–899px): same, cards in one column.
-- Phone (< 720px): single column. Photo, log, buttons, then cards stacked. Strings still connect (recomputed from DOM positions).
+- Below 900px: single column. Photo, log, buttons, then cards stacked. Strings still connect (recomputed from DOM positions). Long user-controlled text (file names) wraps inside cards (`overflow-wrap: anywhere`).
 - Strings recompute on `resize`, after fonts load, and after each card appears.
 
 ### 5.4 Motion timeline (first analysis)
