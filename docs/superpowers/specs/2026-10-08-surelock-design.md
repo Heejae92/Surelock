@@ -285,7 +285,7 @@ Surelock/
 - `buildCase(signals, seed, reopenCount): Case` (seeds the PRNG with `seed + reopenCount`) where `Case = { seed, reopenCount, cards: Card[] }` and `Card = { exhibit, ruleId, category, evidence, deduction, why }`.
 - `renderBoard(root, { photoURL, signals, case, reduceMotion })`, `renderReopen(root, case)`, `renderError(root, code)`, `resetBoard(root)`.
 
-**Dependency:** `exifr` lite UMD, pinned (`https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js`), loaded as a classic script before the module. Only `exifr.parse(file, { pick: ['DateTimeOriginal', 'Make', 'Model', 'GPSLatitude', 'GPSLongitude'] })` is used; the GPS values are discarded after checking presence and never stored.
+**Dependency:** `exifr` lite UMD, pinned (`https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js`), loaded as a classic script before the module. Only `exifr.parse(file, { ifd0: ['Make', 'Model'], exif: ['DateTimeOriginal'], gps: ['GPSLatitude', 'GPSLongitude'] })` is used (the lite build has no tag dictionaries, so a global `pick` option throws); the GPS values are discarded after checking presence and never stored.
 
 **Image handling:** decode via `createImageBitmap` where available, else `<img>` + object URL. Draw to a 64×64 canvas for analysis. Images over 4096px on a side are still only sampled at 64×64, so size is not a problem. Object URLs are revoked on "New photo".
 

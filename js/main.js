@@ -54,7 +54,7 @@ async function runCase(loadSignals, photoURL, alt) {
 }
 
 function handleFile(file) {
-  if (!file) return;
+  if (!file || state.busy) return;
   const url = URL.createObjectURL(file);
   runCase(() => readSignals(file), url, file.name);
 }
