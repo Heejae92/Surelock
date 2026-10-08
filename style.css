@@ -75,7 +75,9 @@ body {
   pointer-events: none;
   overflow: visible;
   z-index: 1;
+  transition: opacity 200ms ease-in;
 }
+.strings.is-out { opacity: 0; }
 .string {
   fill: none;
   stroke: var(--string);
@@ -254,6 +256,7 @@ button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 }
 .card.is-out { animation: card-out 200ms ease-in forwards; }
 @keyframes card-out {
+  from { opacity: 1; transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--tilt, 0deg)); }
   to { opacity: 0; transform: translate(var(--dx, 0px), calc(var(--dy, 0px) + 12px)) rotate(var(--tilt, 0deg)); }
 }
 .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }

@@ -36,6 +36,8 @@ async function runCase(loadSignals, photoURL, alt) {
       signals = await loadSignals();
     } catch (err) {
       if (photoURL.startsWith('blob:')) URL.revokeObjectURL(photoURL);
+      if (!(err && err.code)) console.error(err);
+      state.signals = null;
       board.showError(err && err.code ? err.code : 'undecodable');
       return;
     }

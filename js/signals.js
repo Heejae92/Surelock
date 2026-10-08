@@ -57,7 +57,8 @@ async function readExif(file) {
   const exifr = globalThis.exifr;
   if (!exifr) return null;
   try {
-    // The lite build ships no tag dictionaries, so a global `pick` throws; filter per block instead.
+    // exifr lite throws on the global `pick` option (its filter walks a block the lite build has no
+    // dictionary for), so filter per block instead. GPS values are discarded after the presence check.
     return await exifr.parse(file, { ifd0: ['Make', 'Model'], exif: ['DateTimeOriginal'], gps: ['GPSLatitude', 'GPSLongitude'] });
   } catch {
     return null;

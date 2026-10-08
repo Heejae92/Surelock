@@ -56,7 +56,11 @@ export function createBoard(root) {
     stamp: q('stamp'),
   };
   const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const ms = (name) => parseFloat(getComputedStyle(root).getPropertyValue(name)) || 0;
+  const ms = (name) => {
+    const raw = getComputedStyle(root).getPropertyValue(name).trim();
+    const value = parseFloat(raw) || 0;
+    return /ms$/.test(raw) ? value : /s$/.test(raw) ? value * 1000 : value;
+  };
   const wait = (t) => (reduced() ? Promise.resolve() : new Promise((resolve) => setTimeout(resolve, t)));
   const strings = new Map(); // card element → path element
 
@@ -119,6 +123,9 @@ export function createBoard(root) {
   window.addEventListener('resize', redrawStrings);
   ui.photo.addEventListener('load', redrawStrings);
   ui.exhibits.addEventListener('toggle', redrawStrings, true);
+  ui.exhibits.addEventListener('animationend', (event) => {
+    if (event.animationName === 'card-in' && strings.has(event.target)) drawString(event.target, false);
+  });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(redrawStrings);
 
   return {
@@ -156,14 +163,16 @@ export function createBoard(root) {
         drawString(node, true);
         await wait(ms('--stagger-card'));
       }
-      await wait(ms('--dur-card'));
+      await wait(Math.max(ms('--dur-card'), ms('--dur-string')));
       redrawStrings();
     },
 
     async flipOutCards() {
       for (const card of ui.exhibits.querySelectorAll('.card')) card.classList.add('is-out');
+      ui.strings.classList.add('is-out');
       await wait(200);
       clearExhibits();
+      ui.strings.classList.remove('is-out');
     },
 
     async showStamp(reopenCount) {
@@ -186,6 +195,7 @@ export function createBoard(root) {
     showError(code) {
       const [headline, hint] = ERRORS[code] || ERRORS.undecodable;
       clearExhibits();
+      ui.caselog.replaceChildren(el('li', 'is-visible', headline));
       const article = el('article', 'card card-error is-in');
       article.append(el('p', 'label', 'Verdict'), el('p', 'deduction', headline), el('p', 'hint', hint));
       ui.exhibits.appendChild(article);
