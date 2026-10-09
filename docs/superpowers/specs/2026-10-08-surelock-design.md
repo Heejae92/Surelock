@@ -169,7 +169,7 @@ Format: **id** (category) — condition · *Evidence* · deductions (3) · whys 
 
 **shape**
 
-22. **screenshot** — `screenShaped` · *No camera data. Screen-shaped, {w}×{h}.* · A screenshot you saved to "deal with later". Later is not coming. / You screenshotted this instead of replying. They noticed. / There are 2,000 more of these. You will delete none of them. · We have seen your other screenshots. / Elementary.
+22. **screenshot** — `screenShaped` · *No camera data. Shaped like a screen.* (no numbers, so the `dimensions` filler does not repeat them) · A screenshot you saved to "deal with later". Later is not coming. / You screenshotted this instead of replying. They noticed. / There are 2,000 more of these. You will delete none of them. · We have seen your other screenshots. / Elementary.
 23. **portrait** — portrait, not screen-shaped · *Portrait, {ratio}.* · You took this to show someone. They left you on read. / Landscapes are for memories. Portraits are for proof. / This was going to be a story. It expired. · Tall photos are for other people. / Because it is obvious.
 24. **landscape** — landscape, not screen-shaped · *Landscape, {ratio}.* · You turned the phone sideways. You were trying. / This was meant to be a wallpaper. It lasted a week. / Wide frame, narrow plan. · Horizontal is a hope. / Elementary.
 25. **square** — square · *Square, 1:1.* · You still think it is 2014. / You cropped out the problem. The problem was on the left. / This was for a profile. The profile is gone. The photo stayed. · Squares are nostalgia. / The crop confessed.

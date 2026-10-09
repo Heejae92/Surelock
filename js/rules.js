@@ -45,7 +45,7 @@ export function fmtMB(bytes) {
 }
 
 export function fmtKB(bytes) {
-  return Math.round(bytes / 1024);
+  return Math.max(1, Math.round(bytes / 1024));
 }
 
 const CAMERA_NAME = /^(?:IMG|DSC|PXL|DCIM|P)[_-]?E?\d/i;
@@ -328,7 +328,7 @@ export const RULES = [
   {
     id: 'screenshot', category: 'shape',
     when: (s) => s.screenShaped === true,
-    evidence: (s) => `No camera data. Screen-shaped, ${fmtInt(s.width)}×${fmtInt(s.height)}.`,
+    evidence: () => 'No camera data. Shaped like a screen.',
     deductions: [
       'A screenshot you saved to "deal with later". Later is not coming.',
       'You screenshotted this instead of replying. They noticed.',

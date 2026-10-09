@@ -25,6 +25,7 @@ test('formatting helpers', () => {
   assert.equal(fmtInt(12193792), '12,193,792');
   assert.equal(fmtMB(4823000), '4.6');
   assert.equal(fmtKB(212000), 207);
+  assert.equal(fmtKB(486), 1);
   assert.equal(parsePhotoNumber('IMG_8842.jpg'), 8842);
   assert.equal(parsePhotoNumber('DSC_0417.JPG'), 417);
   assert.equal(parsePhotoNumber('Screenshot 2026-10-08.png'), null);
