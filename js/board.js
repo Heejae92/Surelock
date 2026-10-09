@@ -160,8 +160,9 @@ export function createBoard(root) {
         const node = cardElement(card);
         ui.exhibits.appendChild(node);
         node.getBoundingClientRect();
-        node.classList.add('is-in');
+        // Measure the resting position before the entry animation lifts the card.
         drawString(node, true);
+        node.classList.add('is-in');
         await wait(ms('--stagger-card'));
       }
       await wait(Math.max(ms('--dur-card'), ms('--dur-string')));
@@ -184,9 +185,10 @@ export function createBoard(root) {
       ui.actions.hidden = false;
       ui.reopened.textContent = reopenCount > 0
         ? `Reopened ${reopenCount} ${reopenCount === 1 ? 'time' : 'times'}. Still 100%.`
-        : '';
+        : 'Case closed. Five exhibits. 100%.';
       redrawStrings();
       await wait(ms('--dur-stamp'));
+      if (document.activeElement === document.body) ui.actions.querySelector('button').focus();
     },
 
     hideStamp() {
@@ -200,6 +202,7 @@ export function createBoard(root) {
       const article = el('article', 'card card-error is-in');
       article.append(el('p', 'label', 'Verdict'), el('p', 'deduction', headline), el('p', 'hint', hint));
       ui.exhibits.appendChild(article);
+      ui.dropzone.querySelector('input').focus();
     },
 
     reset() {

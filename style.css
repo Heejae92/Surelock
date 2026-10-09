@@ -65,7 +65,8 @@ body {
   gap: 32px;
   min-height: 70vh;
 }
-@media (min-width: 900px) {
+.dossier { max-width: 380px; }
+@media (min-width: 1048px) {
   .board { grid-template-columns: 380px minmax(0, 1fr); }
 }
 .strings {
@@ -287,7 +288,7 @@ button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 }
 .evidence { margin: 0 0 12px; font-family: var(--font-mono); font-size: 14px; line-height: 1.5; }
 .deduction { margin: 0 0 12px; font-size: 17px; font-weight: 600; line-height: 1.35; }
-@media (min-width: 900px) { .deduction { font-size: 19px; } }
+@media (min-width: 1048px) { .deduction { font-size: 19px; } }
 .why summary { font-size: 13px; color: var(--ink-2); cursor: pointer; }
 .why p { margin: 6px 0 0; font-size: 13px; }
 .card-error { border: 2px solid var(--stamp); }

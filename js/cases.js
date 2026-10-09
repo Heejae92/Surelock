@@ -48,10 +48,11 @@ function text(value, s) {
   return typeof value === 'function' ? value(s) : value;
 }
 
-export function buildCase(signals, seed, reopenCount = 0) {
+export function buildCase(signals, seed, reopenCount = 0, previous = null) {
   const s = { ...signals, reopenCount };
   const rand = mulberry32((seed + reopenCount) >>> 0);
   const eligible = RULES.filter((rule) => rule.when(s));
+  const seen = new Set(((previous && previous.cards) || []).map((c) => `${c.ruleId}|${c.deduction}`));
 
   const perCategory = [];
   for (const category of CATEGORIES) {
@@ -66,13 +67,18 @@ export function buildCase(signals, seed, reopenCount = 0) {
   ];
   while (chosen.length < CARDS_PER_CASE && fillers.length) chosen.push(fillers.shift());
 
-  const cards = chosen.map((rule, index) => ({
-    exhibit: reopenCount * CARDS_PER_CASE + index + 1,
-    ruleId: rule.id,
-    category: rule.category,
-    evidence: text(rule.evidence, s),
-    deduction: text(pick(rand, rule.deductions), s),
-    why: text(pick(rand, rule.whys), s),
-  }));
+  const cards = chosen.map((rule, index) => {
+    // A reopen never reuses a (rule, deduction) pair from the case it replaces.
+    const fresh = rule.deductions.filter((d) => !seen.has(`${rule.id}|${text(d, s)}`));
+    const deduction = text(pick(rand, fresh.length ? fresh : rule.deductions), s);
+    return {
+      exhibit: reopenCount * CARDS_PER_CASE + index + 1,
+      ruleId: rule.id,
+      category: rule.category,
+      evidence: text(rule.evidence, s),
+      deduction,
+      why: text(pick(rand, rule.whys), s),
+    };
+  });
   return { seed, reopenCount, cards };
 }

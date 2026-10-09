@@ -73,3 +73,17 @@ test('buildCase still yields five cards for a sparse screenshot', () => {
   const r = buildCase(sparse, 7, 2);
   assert.ok(r.cards.some((k) => k.ruleId === 'second-opinion'));
 });
+
+test('a reopen never repeats a card from the case it replaces', () => {
+  for (const signals of [full, sparse]) {
+    for (let seed = 0; seed < 2000; seed += 1) {
+      let previous = buildCase(signals, seed, 0);
+      for (let n = 1; n <= 3; n += 1) {
+        const next = buildCase(signals, seed, n, previous);
+        const seen = new Set(previous.cards.map((c) => `${c.ruleId}|${c.deduction}`));
+        for (const card of next.cards) assert.ok(!seen.has(`${card.ruleId}|${card.deduction}`), `seed ${seed} reopen ${n}: ${card.ruleId}`);
+        previous = next;
+      }
+    }
+  }
+});

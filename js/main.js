@@ -9,7 +9,7 @@ const fileInput = document.getElementById('file-input');
 const dropzone = document.getElementById('dropzone');
 const strip = document.getElementById('samples-strip');
 
-const state = { signals: null, seed: 0, reopenCount: 0, photoURL: null, busy: false };
+const state = { signals: null, seed: 0, reopenCount: 0, lastCase: null, photoURL: null, busy: false };
 
 function logLines(signals) {
   return [
@@ -38,6 +38,7 @@ async function runCase(loadSignals, photoURL, alt) {
       if (photoURL.startsWith('blob:')) URL.revokeObjectURL(photoURL);
       if (!(err && err.code)) console.error(err);
       state.signals = null;
+      state.lastCase = null;
       board.showError(err && err.code ? err.code : 'undecodable');
       return;
     }
@@ -47,8 +48,8 @@ async function runCase(loadSignals, photoURL, alt) {
     state.photoURL = photoURL;
     await board.showPhoto(photoURL, alt);
     await board.playScan(logLines(signals));
-    const first = buildCase(signals, state.seed, 0);
-    await board.showCards(first.cards);
+    state.lastCase = buildCase(signals, state.seed, 0);
+    await board.showCards(state.lastCase.cards);
     await board.showStamp(0);
   } finally {
     state.busy = false;
@@ -72,13 +73,14 @@ for (const type of ['dragenter', 'dragover']) {
     dropzone.classList.add('is-over');
   });
 }
-for (const type of ['dragleave', 'drop']) {
-  document.addEventListener(type, (event) => {
-    event.preventDefault();
-    dropzone.classList.remove('is-over');
-  });
-}
+document.addEventListener('dragleave', (event) => {
+  // Moving between elements fires dragleave too; only clear once the drag leaves the window.
+  if (event.relatedTarget instanceof Node && document.contains(event.relatedTarget)) return;
+  dropzone.classList.remove('is-over');
+});
 document.addEventListener('drop', (event) => {
+  event.preventDefault();
+  dropzone.classList.remove('is-over');
   const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
   if (file) handleFile(file);
 });
@@ -90,8 +92,8 @@ document.getElementById('reopen').addEventListener('click', async () => {
     state.reopenCount += 1;
     board.hideStamp();
     await board.flipOutCards();
-    const next = buildCase(state.signals, state.seed, state.reopenCount);
-    await board.showCards(next.cards);
+    state.lastCase = buildCase(state.signals, state.seed, state.reopenCount, state.lastCase);
+    await board.showCards(state.lastCase.cards);
     await board.showStamp(state.reopenCount);
   } finally {
     state.busy = false;
@@ -104,6 +106,7 @@ document.getElementById('new-photo').addEventListener('click', () => {
   releasePhoto();
   state.signals = null;
   state.reopenCount = 0;
+  state.lastCase = null;
   fileInput.focus();
 });
 

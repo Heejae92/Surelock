@@ -35,7 +35,7 @@ export function orientationOf(width, height) {
 async function decode(file) {
   if (typeof createImageBitmap === 'function') {
     try {
-      return await createImageBitmap(file);
+      return await createImageBitmap(file, { imageOrientation: 'from-image' });
     } catch {
       // SVG and some formats are not supported by createImageBitmap; fall back to <img>.
     }
@@ -53,9 +53,15 @@ async function decode(file) {
   }
 }
 
+let warnedNoExifr = false;
+
 async function readExif(file) {
   const exifr = globalThis.exifr;
-  if (!exifr) return null;
+  if (!exifr) {
+    if (!warnedNoExifr) console.warn('exifr did not load; photos will read as having no camera data');
+    warnedNoExifr = true;
+    return null;
+  }
   try {
     // exifr lite throws on the global `pick` option (its filter walks a block the lite build has no
     // dictionary for), so filter per block instead. GPS values are discarded after the presence check.
