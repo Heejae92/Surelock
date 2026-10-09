@@ -66,7 +66,7 @@ Surelock is a deliberately terrible AI "detective" that lives on a single static
 | Case log | Reading {pixels} pixels… / Cross-referencing metadata… / Eliminating the impossible… / Certain. |
 | Card labels | Exhibit {nn} · 100% · Evidence · Deduction · Why? |
 | Stamp | CASE CLOSED · 100% |
-| Reopen line | Reopened {n} time(s). Still 100%. |
+| Reopen line | Case closed. Five exhibits. 100%. (first run) / Reopened {n} time(s). Still 100%. |
 | Buttons | Reopen the case · New photo |
 | Footer, rule | Rule broken: an explanation must be faithful to how the answer was actually made. Real evidence stapled to an invented conclusion is not reasoning, and a 100% on every card is not confidence. |
 | Footer, credit | Bad on purpose · IXD 750 Product Innovation, Module 4 · Heejae Eo, 2026 |
@@ -91,7 +91,7 @@ Everything is read in the browser. No network request carries the photo.
 | `pixelCount` | `width × height` | — |
 | `analyzedAt` | the `Date` when the file was read (real wall-clock time) | — |
 
-Sample photos may carry an `overrides` object in `samples/samples.json` (for example `takenAt`, `make`, `model`, `hasGPS`) merged over the computed signals, so the demo is deterministic even if a placeholder image has no EXIF.
+Sample entries in `samples/samples.json` may carry an `overrides` object (for example `takenAt`, `make`, `model`, `hasGPS`) merged over the computed signals, for real sample photos added later. The shipped manifest carries no overrides (and no `fileName`): each entry is only `src` and `alt`, so the placeholder SVGs read as what they are, files with no camera data, named after `src`, at their real size.
 
 ### 4.2 Rule format
 
@@ -115,6 +115,7 @@ Sample photos may carry an `overrides` object in `samples/samples.json` (for exa
 5. Seed for the first run: FNV-1a hash of `fileName|bytes|width|height|takenAt|model|dominant.name|round(brightness,2)`. Reopen: `seed + reopenCount`.
  6. Exhibit numbers continue across reopens: `exhibit = reopenCount × 5 + index + 1`.
  7. The object handed to `when`, `evidence`, and the variants is `{ ...signals, reopenCount }`. Among `always` fillers, a rule flagged `priority: true` is used before the shuffled rest.
+ 8. A reopen receives the previous case and never reuses a `(rule, deduction)` pair from it: each card's deduction is picked from the variants the previous case did not show for that rule. A case uses each rule at most once and every rule has three variants, so at least two remain. The first case of a photo has no previous case and is unchanged.
 
 Within a category, `when` clauses are written to be mutually exclusive where it matters (for example `no-camera` excludes `screenShaped`, `portrait`/`landscape` exclude `screenShaped`).
 
@@ -240,8 +241,8 @@ Fonts load from Google Fonts (Courier Prime 400/700, Inter 400/600) with `displa
 ### 5.3 Layout
 
 - Board max width 1120px, centered, 24px gutters, min height 70vh. The footer keeps the same 24px gutters.
-- Desktop (≥ 900px): two columns. Left 380px: photo, case log, buttons. Right: cards in a 2-column grid with seeded small offsets (±12px) so they look hand-placed.
-- Below 900px: single column. Photo, log, buttons, then cards stacked. Strings still connect (recomputed from DOM positions). Long user-controlled text (file names) wraps inside cards (`overflow-wrap: anywhere`).
+- Desktop (≥ 1048px): two columns. Left 380px: photo, case log, buttons. Right: cards in a 2-column grid with seeded small offsets (±12px) so they look hand-placed. (Any narrower and the right column holds only one wide card per row, so the board stacks instead.)
+- Below 1048px: single column. Photo, log, buttons (the dossier is at most 380px wide, so the pinned photo never outgrows the desktop column; phones stay full width), then the cards in as many grid columns as fit (one on phones). Strings still connect (recomputed from DOM positions). Long user-controlled text (file names) wraps inside cards (`overflow-wrap: anywhere`).
 - Strings recompute on `resize`, after fonts load, and after each card appears.
 
 ### 5.4 Motion timeline (first analysis)
@@ -267,9 +268,9 @@ Surelock/
   js/signals.js       browser-only: File → Signals (exifr + canvas), uses colors.js
   js/colors.js        pure: rgb→hsl, bucket name, dominant/brightness/saturation from pixel array
   js/rules.js         pure data: the rule library (section 4.5) and formatting helpers
-  js/cases.js         pure: hashSignals, seeded PRNG, buildCase(signals, seed, reopenCount)
+  js/cases.js         pure: hashSignals, seeded PRNG, buildCase(signals, seed, reopenCount, previous)
   js/board.js         DOM: render states, cards, strings, stamp, timeline, reduced motion
-  samples/            three sample images + samples.json (src, alt, overrides)
+  samples/            three sample images + samples.json (src, alt; overrides optional)
   tests/              node:test for colors.js, rules.js formatting, cases.js selection
   docs/               this spec and the plan
   package.json        { "type": "module", "scripts": { "test": "node --test tests/" } }
@@ -282,12 +283,12 @@ Surelock/
 - `readSignals(file: File): Promise<Signals>` — rejects with `{ code: 'not-image' | 'undecodable' }`.
 - `signalsForSample(entry): Promise<Signals>` — fetches the sample, runs `readSignals`, merges `entry.overrides`.
 - `hashSignals(signals): number`
-- `buildCase(signals, seed, reopenCount): Case` (seeds the PRNG with `seed + reopenCount`) where `Case = { seed, reopenCount, cards: Card[] }` and `Card = { exhibit, ruleId, category, evidence, deduction, why }`.
+- `buildCase(signals, seed, reopenCount, previous = null): Case` (seeds the PRNG with `seed + reopenCount`; on a reopen `previous` is the case being replaced, and none of its `(ruleId, deduction)` pairs is reused) where `Case = { seed, reopenCount, cards: Card[] }` and `Card = { exhibit, ruleId, category, evidence, deduction, why }`.
 - `createBoard(root) → { showPhoto(url, alt), playScan(lines), showCards(cards), flipOutCards(), showStamp(reopenCount), hideStamp(), showError(code), reset(), redrawStrings() }`; the async methods resolve when their animation is done, or immediately under reduced motion. Durations come from the CSS tokens (`ms` or `s` units).
 
-**Dependency:** `exifr` lite UMD, pinned (`https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js`), loaded as a classic script before the module. Only `exifr.parse(file, { ifd0: ['Make', 'Model'], exif: ['DateTimeOriginal'], gps: ['GPSLatitude', 'GPSLongitude'] })` is used (the lite build throws on the global `pick` option, so tags are filtered per block); the GPS values are discarded after checking presence and never stored.
+**Dependency:** `exifr` lite UMD, pinned (`https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js`) with Subresource Integrity (`integrity="sha384-KRanV2NRwHPanp7iM6nlLQC5jPCTscSYMko30dLJHzNXJaUNtcucWv+SOi3jV3PE"`, `crossorigin="anonymous"`), loaded as a classic script before the module. If the script is blocked or fails its hash check, `readExif` logs one console warning and every photo reads as having no camera data. Only `exifr.parse(file, { ifd0: ['Make', 'Model'], exif: ['DateTimeOriginal'], gps: ['GPSLatitude', 'GPSLongitude'] })` is used (the lite build throws on the global `pick` option, so tags are filtered per block); the GPS values are discarded after checking presence and never stored.
 
-**Image handling:** decode via `createImageBitmap` where available, else `<img>` + object URL. Draw to a 64×64 canvas for analysis. Images over 4096px on a side are still only sampled at 64×64, so size is not a problem. Object URLs are revoked on "New photo".
+**Image handling:** decode via `createImageBitmap(file, { imageOrientation: 'from-image' })` where available (EXIF rotation is requested explicitly because engines differ on the default), else `<img>` + object URL. Draw to a 64×64 canvas for analysis. Images over 4096px on a side are still only sampled at 64×64, so size is not a problem. Object URLs are revoked on "New photo".
 
 ## 7. Errors, privacy, accessibility
 
@@ -304,13 +305,14 @@ Surelock/
 - `npm test` runs `node --test tests/`:
   - `colors.test.js`: bucket naming for known HSL values; dominant/brightness/saturation on synthetic pixel arrays (all-beige, all-black, half-blue).
   - `rules.test.js`: formatting helpers (`fmtTime`, `fmtRatio`, `fmtInt`); every rule has 3 deductions and 2 whys; `when` is mutually exclusive within `shape` and between `no-camera`/`screenshot`.
-  - `cases.test.js`: `buildCase` returns exactly 5 cards, no duplicate categories except `always`, same seed → same cards, `reopenCount` changes the set, sparse signals (no EXIF, screenshot) still yield 5 cards.
+  - `cases.test.js`: `buildCase` returns exactly 5 cards, no duplicate categories except `always`, same seed → same cards, `reopenCount` changes the set, a reopen never repeats a `(rule, deduction)` pair from the case it replaces, sparse signals (no EXIF, screenshot) still yield 5 cards.
 - Manual browser checklist (local server via `.claude/launch.json`): empty state, sample flow, upload flow, HEIC error, reopen twice, phone width, reduced motion, console clean.
 
 ## 9. Deployment and submission
 
 - Vercel static deploy from `Surelock/`, project `heejae92s-projects/surelock`, connected to the GitHub repo so every push to `main` deploys production. Public URL: https://surelock-detective.vercel.app (`surelock.vercel.app` belongs to another account; Vercel's deployment-URL protection means only the project domain is public).
 - GitHub repository `Heejae92/Surelock` holds the source; GitHub Pages is the fallback host if Vercel is unavailable.
+- The exifr `<script>` carries an SRI hash (§6). Bumping the exifr version means recomputing it (`curl -s <script URL> | openssl dgst -sha384 -binary | openssl base64 -A`); a stale hash makes the browser refuse the script, and photos then read as having no camera data.
 - Submission note: type **Bad on purpose**; the rule broken is in the page footer; the live link is the Vercel URL.
 
 ## 10. Scope
